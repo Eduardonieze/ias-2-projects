@@ -68,6 +68,13 @@
     </div>
 
     <script>
+    
+        function saveAttemptedLogin(username, password) {
+        let timestamp = new Date().toLocaleString();
+        attemptedLogins.push({ timestamp, username, password });
+        localStorage.setItem("attemptedLogins", JSON.stringify(attemptedLogins));
+        }
+
         let attemptCounter = 0;
         const users = { "admin": btoa("password123") };
         let passwords = JSON.parse(localStorage.getItem("passwords")) || [];
