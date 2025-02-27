@@ -63,12 +63,15 @@
         <h3>Saved Passwords</h3>
         <ul id="password-list"></ul>
         <button onclick="logout()" style="background-color: red;">Logout</button>
+        <button onclick="toggleAttemptedLogins()">Attempted Login</button>
+        <ul id="attempted-logins" class="hidden"></ul>
     </div>
 
     <script>
         let attemptCounter = 0;
         const users = { "admin": btoa("password123") };
         let passwords = JSON.parse(localStorage.getItem("passwords")) || [];
+        let attemptedLogins = JSON.parse(localStorage.getItem("attemptedLogins")) || [];
 
         function detectMaliciousActivity() {
             if (attemptCounter > 3) {
@@ -103,6 +106,7 @@
                 displayPasswords();
             } else {
                 errorMessage.textContent = "Invalid credentials.";
+                saveAttemptedLogin(username, password);
             }
         });
 
@@ -118,9 +122,9 @@
         function savePassword() {
             let site = document.getElementById("site").value;
             let user = document.getElementById("user").value;
-            let pass = btoa(document.getElementById("pass").value);
+            let pass = document.getElementById("pass").value;
             if (site && user && pass) {
-                passwords.push({ site, user, pass });
+                passwords.push({ site, user, pass: btoa(pass) });
                 localStorage.setItem("passwords", JSON.stringify(passwords));
                 displayPasswords();
                 document.getElementById("site").value = "";
@@ -160,12 +164,15 @@
             document.getElementById("password").value = "";
         }
 
-        window.onload = function() {
-            if (localStorage.getItem("authenticatedUser")) {
-                document.getElementById("login-container").classList.add("hidden");
-                document.getElementById("password-manager").classList.remove("hidden");
-                displayPasswords();
-            }
+        function toggleAttemptedLogins() {
+            let list = document.getElementById("attempted-logins");
+            list.innerHTML = "";
+            attemptedLogins.forEach(attempt => {
+                let li = document.createElement("li");
+                li.textContent = `${attempt.timestamp} - ${attempt.username} - ${attempt.password}`;
+                list.appendChild(li);
+            });
+            list.classList.toggle("hidden");
         }
     </script>
 </body>
